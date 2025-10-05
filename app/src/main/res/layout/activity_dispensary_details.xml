@@ -5,7 +5,7 @@
     android:id="@+id/detailsLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#101010"
+    android:background="#FFFF"
     android:padding="20dp"
     tools:context=".DispensaryDetailsActivity">
 
@@ -28,13 +28,25 @@
             android:layout_marginBottom="16dp"
             android:gravity="center" />
 
+        <!-- Status -->
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Open Now"
+            android:textColor="#4CAF50"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            android:layout_marginBottom="24dp"
+            android:gravity="center" />
+
         <!-- Address -->
         <TextView
             android:id="@+id/addressText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="123 Main Street, Cape Town"
-            android:textColor="#FFFFFF"
+            android:textColor="#101010"
             android:textSize="16sp"
             android:layout_marginBottom="8dp"
             android:gravity="center" />
@@ -50,17 +62,59 @@
             android:layout_marginBottom="8dp"
             android:gravity="center" />
 
-        <!-- Status -->
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="wrap_content"
+        <!-- Placeholder Reviews -->
+        <LinearLayout
+            android:id="@+id/reviewsContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Open Now"
-            android:textColor="#4CAF50"
-            android:textStyle="bold"
-            android:textSize="16sp"
-            android:layout_marginBottom="24dp"
-            android:gravity="center" />
+            android:orientation="vertical"
+            android:layout_marginBottom="16dp">
+
+            <!-- Single review -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:background="#EEEEEE"
+                android:padding="12dp"
+                android:layout_marginBottom="8dp"
+                android:layout_marginHorizontal="4dp"
+                android:clipToOutline="true">
+
+                <TextView
+                    android:id="@+id/reviewName"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="John D."
+                    android:textColor="#101010"
+                    android:textStyle="bold"
+                    android:textSize="14sp" />
+
+                <TextView
+                    android:id="@+id/reviewRating"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="⭐ 5"
+                    android:textColor="#FFD700"
+                    android:textSize="14sp"
+                    android:layout_marginTop="2dp" />
+
+                <TextView
+                    android:id="@+id/reviewText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Great dispensary, friendly staff!"
+                    android:textColor="#333333"
+                    android:textSize="14sp"
+                    android:layout_marginTop="4dp" />
+
+            </LinearLayout>
+
+            <!-- Additional reviews can be dynamically added here -->
+
+        </LinearLayout>
+
+        <!-- Status -->
 
         <!-- Get Directions Button -->
         <Button

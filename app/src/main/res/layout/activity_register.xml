@@ -4,7 +4,7 @@
     android:id="@+id/registerLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#101010"
+    android:background="#FFFFFF"
     android:fillViewport="true"
     tools:context=".RegisterActivity">
 
@@ -16,11 +16,20 @@
         android:padding="24dp">
 
 
+        <ImageView
+            android:id="@+id/logoImage"
+            android:layout_width="210dp"
+            android:layout_height="189dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="16dp"
+            android:contentDescription="App Logo"
+            android:src="@drawable/marleymapslogo" />
+
         <TextView
             android:text="Create Account"
             android:textSize="26sp"
             android:textStyle="bold"
-            android:textColor="#FFFFFF"
+            android:textColor="#101010"
             android:layout_marginBottom="32dp"
             android:gravity="center"
             android:layout_width="match_parent"
@@ -39,6 +48,17 @@
             android:layout_marginBottom="16dp" />
 
         <EditText
+            android:id="@+id/ageInput"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="Age"
+            android:background="@android:drawable/edit_text"
+            android:padding="12dp"
+            android:textColor="#101010"
+            android:textColorHint="#AAAAAA"
+            android:layout_marginBottom="16dp" />
+
+        <EditText
             android:id="@+id/emailInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -49,6 +69,7 @@
             android:textColor="#101010"
             android:textColorHint="#AAAAAA"
             android:layout_marginBottom="16dp" />
+
 
         <EditText
             android:id="@+id/passwordInput"
@@ -68,7 +89,7 @@
             android:layout_height="wrap_content"
             android:text="Register"
             android:textStyle="bold"
-            android:backgroundTint="#4CAF50"
+            android:backgroundTint="#2196F3"
             android:layout_marginBottom="16dp"
             android:textColor="#FFFFFF" />
 

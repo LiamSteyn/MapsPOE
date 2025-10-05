@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="16dp"
-    android:background="#101010"
+    android:background="#FFFF"
     tools:context=".ProfileActivity">
 
     <LinearLayout
@@ -32,7 +32,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Name: John Doe"
-            android:textColor="#FFFFFF"
+            android:textColor="#101010"
             android:textSize="18sp"
             android:layout_marginBottom="8dp" />
 
@@ -42,7 +42,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Email: johndoe@example.com"
-            android:textColor="#FFFFFF"
+            android:textColor="#101010"
             android:textSize="18sp"
             android:layout_marginBottom="24dp" />
 
@@ -59,7 +59,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Enable Location"
-                android:textColor="#FFFFFF"
+                android:textColor="#101010"
                 android:textSize="16sp" />
 
             <Switch
@@ -82,7 +82,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Enable Biometric Login"
-                android:textColor="#FFFFFF"
+                android:textColor="#101010"
                 android:textSize="16sp" />
 
             <Switch

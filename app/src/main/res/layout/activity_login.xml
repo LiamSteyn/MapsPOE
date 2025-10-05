@@ -4,16 +4,25 @@
     android:id="@+id/loginLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#101010"
+    android:background="#FFFFFF"
     android:gravity="center"
     android:orientation="vertical"
     android:padding="24dp"
     tools:context=".LoginActivity">
 
+    <ImageView
+        android:id="@+id/logoImage"
+        android:layout_width="210dp"
+        android:layout_height="189dp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="16dp"
+        android:contentDescription="App Logo"
+        android:src="@drawable/marleymapslogo" />
+
     <TextView
         android:text="Marley Maps"
         android:textSize="28sp"
-        android:textColor="#FFFFFF"
+        android:textColor="#101010"
         android:textStyle="bold"
         android:layout_marginBottom="32dp"
         android:gravity="center"
