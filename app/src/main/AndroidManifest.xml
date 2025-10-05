@@ -51,6 +51,12 @@
             android:label="Dispensary Details"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
 
+        <activity
+            android:name=".ProfileActivity"
+            android:exported="true"
+            android:label="Profile Settings"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+
     </application>
 
 </manifest>

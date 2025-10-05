@@ -17,9 +17,20 @@ class DashboardActivity : Activity() {
         // Set the layout of this activity to activity_dashboard.xml
         setContentView(R.layout.activity_dashboard)
 
+        // Get the logged-in user email from intent
+        val profileButton = findViewById<Button>(R.id.profileButton)
+        val userEmail = intent.getStringExtra("userEmail") ?: "" // fallback to empty string
+
+        profileButton.setOnClickListener {
+            val intent = Intent(this, ProfileActivity::class.java)
+            intent.putExtra("userEmail", userEmail)
+            startActivity(intent)
+        }
+
+
+
         // Find references to the ListView and Logout Button in the layout
         val listView = findViewById<ListView>(R.id.dispensaryList) // ListView showing dispensaries
-        val logoutButton = findViewById<Button>(R.id.logoutButton) // Button for logging out
 
         // Load dispensary data from DataRepository
         val dispensaries = DataRepository.getDispensaries()
@@ -39,13 +50,6 @@ class DashboardActivity : Activity() {
             // Pass the selected dispensary's ID to the details activity
             intent.putExtra("dispensaryId", dispensaries[position].id)
             startActivity(intent)
-        }
-
-        // Handle logout button click
-        logoutButton.setOnClickListener {
-            // Navigate back to LoginActivity
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish() // Close DashboardActivity
         }
     }
 }

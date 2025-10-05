@@ -49,4 +49,6 @@ object DataRepository {
      * @return List of Dispensary objects.
      */
     fun getDispensaries(): List<Dispensary> = dispensaries
+
+    fun getUsers(): List<User> = users
 }

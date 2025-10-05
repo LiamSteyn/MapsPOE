@@ -29,6 +29,8 @@ class LoginActivity : Activity() {
             val success = DataRepository.login(email.text.toString(), password.text.toString())
 
             if (success) {
+                val intent = Intent(this, DashboardActivity::class.java)
+                intent.putExtra("userEmail", email.text.toString())
                 // Login successful → navigate to DashboardActivity
                 startActivity(Intent(this, DashboardActivity::class.java))
                 finish() // Close LoginActivity so user cannot go back to it
