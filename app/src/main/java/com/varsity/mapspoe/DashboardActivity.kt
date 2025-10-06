@@ -22,6 +22,10 @@ class DashboardActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
 
+        findViewById<android.widget.Button>(R.id.btn_open_map)?.setOnClickListener {
+            startActivity(android.content.Intent(this, MapsActivity::class.java))
+        }
+
         // Profile button (unchanged)
         val profileButton = findViewById<Button>(R.id.profileButton)
         val userEmail = intent.getStringExtra("userEmail") ?: ""

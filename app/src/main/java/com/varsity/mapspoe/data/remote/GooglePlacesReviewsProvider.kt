@@ -1,82 +1,115 @@
+// app/src/main/java/com/varsity/mapspoe/data/remote/GooglePlacesReviewsProvider.kt
 package com.varsity.mapspoe.data.remote
 
-import android.content.Context
-import android.content.pm.PackageManager
-import android.util.Log
-import com.google.android.gms.tasks.Tasks
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.Place
-import com.google.android.libraries.places.api.net.FetchPlaceRequest
-import com.google.android.libraries.places.api.net.PlacesClient
+import com.squareup.moshi.Json
+import com.varsity.mapspoe.data.local.dao.entity.AppDatabase
 import com.varsity.mapspoe.domain.Review
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Retrofit
+import retrofit2.converter.moshi.MoshiConverterFactory
+import retrofit2.http.GET
+import retrofit2.http.Query
 
-/** Keep only ONE copy of this interface in your project. */
-interface RealReviewsProvider {
-    suspend fun getReviews(placeId: String): List<Review>
-}
+// NOTE: The RealReviewsProvider interface is defined in another file in this package.
+// Do NOT redeclare it here.
 
 class GooglePlacesReviewsProvider(
-    private val client: PlacesClient
+    private val apiKey: String,
+    private val db: AppDatabase
 ) : RealReviewsProvider {
 
-    override suspend fun getReviews(placeId: String): List<Review> = withContext(Dispatchers.IO) {
-        try {
-            val fields = listOf(
-                Place.Field.ID,
-                Place.Field.REVIEWS,
-                Place.Field.RATING,
-                Place.Field.USER_RATINGS_TOTAL
-            )
-            val req = FetchPlaceRequest.builder(placeId, fields).build()
-            val resp = Tasks.await(client.fetchPlace(req))
-            val place = resp.place
-            val reviews = place.reviews ?: emptyList()
+    private val api = Retrofit.Builder()
+        .baseUrl("https://maps.googleapis.com/maps/api/")
+        .addConverterFactory(MoshiConverterFactory.create())
+        .build()
+        .create(PlacesApi::class.java)
 
-            reviews.map { r ->
-                val author = r.authorAttribution?.name ?: "Google user"
-                val rating = (r.rating ?: 0.0).toInt()
-                val text   = r.text ?: ""
-                val ts     = System.currentTimeMillis()
+    override suspend fun ensurePlaceIdForStore(
+        storeId: String,
+        name: String,
+        cityHint: String
+    ): String? = withContext(Dispatchers.IO) {
+        val store = db.storeDao().getById(storeId) ?: return@withContext null
+        store.googlePlaceId?.takeIf { it.isNotBlank() }?.let { return@withContext it }
 
-                Review(
-                    id = "gp_${placeId}_${author.hashCode()}_$ts",
-                    storeId = placeId,          // remap to your storeId in the repository before persisting
-                    author = author,
-                    rating = rating,
-                    comment = text,
-                    createdAt = ts              // SDK doesn't expose millis; use now
+        val ts = api.textSearch("$name, $cityHint", apiKey)
+        val hit = ts.results.firstOrNull() ?: return@withContext null
+
+        db.storeDao().upsertAll(
+            listOf(
+                store.copy(
+                    googlePlaceId = hit.placeId,
+                    latitude = hit.geometry?.location?.lat ?: store.latitude,
+                    longitude = hit.geometry?.location?.lng ?: store.longitude,
+                    address = hit.formattedAddress ?: store.address
                 )
-            }
-        } catch (t: Throwable) {
-            Log.e("GPlacesReviews", "Fetch failed: ${t.message}", t)
-            emptyList()
-        }
+            )
+        )
+        hit.placeId
     }
 
-    companion object {
-        /**
-         * Places v3.4.0 requires an API key for initialize(...).
-         * If apiKey is null/blank, we read it from AndroidManifest meta-data:
-         *   <meta-data android:name="com.google.android.geo.API_KEY" android:value="..."/>
-         */
-        fun create(context: Context, apiKey: String? = null): GooglePlacesReviewsProvider {
-            val key = apiKey?.takeIf { it.isNotBlank() } ?: readKeyFromManifest(context)
-            if (!Places.isInitialized()) {
-                Places.initialize(context.applicationContext, key)
+    override suspend fun getReviews(placeId: String): List<Review> =
+        withContext(Dispatchers.IO) {
+            val fields = "place_id,name,rating,user_ratings_total,reviews,geometry,formatted_address,opening_hours"
+            val details = api.placeDetails(placeId, fields, apiKey).result ?: return@withContext emptyList()
+            details.reviews.orEmpty().mapIndexed { idx, r ->
+                Review(
+                    id = "g_${placeId}_$idx",
+                    storeId = placeId, // caller remaps to local storeId
+                    author = r.authorName ?: "Google user",
+                    rating = r.rating ?: 0,
+                    comment = r.text.orEmpty(),
+                    createdAt = (r.unixTime ?: 0L) * 1000
+                )
             }
-            return GooglePlacesReviewsProvider(Places.createClient(context))
         }
 
-        private fun readKeyFromManifest(context: Context): String {
-            val pm = context.packageManager
-            val appInfo = pm.getApplicationInfo(context.packageName, PackageManager.GET_META_DATA)
-            val key = appInfo.metaData?.getString("com.google.android.geo.API_KEY")
-            require(!key.isNullOrBlank()) {
-                "Missing Google API key. Add <meta-data android:name=\"com.google.android.geo.API_KEY\" android:value=\"YOUR_KEY\"/> to AndroidManifest."
-            }
-            return key!!
-        }
+    interface PlacesApi {
+        @GET("place/textsearch/json")
+        suspend fun textSearch(
+            @Query("query") query: String,
+            @Query("key") apiKey: String
+        ): TextSearchResponse
+
+        @GET("place/details/json")
+        suspend fun placeDetails(
+            @Query("place_id") placeId: String,
+            @Query("fields") fields: String,
+            @Query("key") apiKey: String
+        ): PlaceDetailsResponse
+    }
+
+    data class TextSearchResponse(val results: List<TextSearchResult> = emptyList(), val status: String)
+    data class TextSearchResult(
+        @Json(name = "place_id") val placeId: String,
+        val name: String?,
+        val geometry: Geometry?,
+        @Json(name = "formatted_address") val formattedAddress: String?
+    )
+    data class Geometry(val location: LatLng)
+    data class LatLng(val lat: Double, val lng: Double)
+
+    data class PlaceDetailsResponse(val result: PlaceDetails?, val status: String)
+    data class PlaceDetails(
+        @Json(name="place_id") val placeId: String,
+        val name: String?,
+        val rating: Double?,
+        @Json(name="user_ratings_total") val userRatingsTotal: Int?,
+        val geometry: Geometry?,
+        @Json(name="formatted_address") val formattedAddress: String?,
+        @Json(name="opening_hours") val openingHours: OpeningHours?,
+        val reviews: List<GoogleReview>?
+    )
+    data class OpeningHours(@Json(name="weekday_text") val weekdayText: List<String>?)
+    data class GoogleReview(
+        @Json(name="author_name") val authorName: String?,
+        val rating: Int?,
+        val text: String?,
+        @Json(name="time") val unixTime: Long?
+    )
+
+    companion object {
+        fun create(apiKey: String, db: AppDatabase) = GooglePlacesReviewsProvider(apiKey, db)
     }
 }

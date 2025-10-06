@@ -7,12 +7,12 @@ import androidx.room.PrimaryKey
 data class StoreEntity(
     @PrimaryKey val id: String,
     val name: String,
-    val lat: Double,
-    val lon: Double,
-    val address: String,
+    val latitude: Double?,
+    val longitude: Double?,
+    val address: String?,
     val phone: String?,
-    val openHours: String?,
-    val ratingAvg: Double,
-    val ratingCount: Int,
-    val googlePlaceId: String? = null // optional, for later Google reviews
+    val hours: String?,
+    val rating: Double?,
+    val ratingCount: Int?,
+    val googlePlaceId: String?
 )

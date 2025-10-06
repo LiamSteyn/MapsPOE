@@ -15,7 +15,7 @@
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="${PLACES_API_KEY}" />
+            android:value="@string/google_maps_key" />
 
         <activity
             android:name=".MainActivity"
@@ -59,6 +59,17 @@
             android:name=".ProfileActivity"
             android:exported="true"
             android:label="Profile Settings"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+
+        <activity
+            android:name=".MapsActivity"
+            android:exported="true"
+            android:label="Map"
+            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+        <activity
+            android:name=".ReviewsActivity"
+            android:exported="true"
+            android:label="Reviews"
             android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
 
     </application>

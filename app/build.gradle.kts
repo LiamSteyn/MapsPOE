@@ -1,3 +1,20 @@
+// make sure these lines exist near the top of build.gradle.kts
+import java.io.FileInputStream
+import java.util.Properties
+
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(FileInputStream(f))
+}
+val MAPS_API_KEY = (localProps.getProperty("MAPS_API_KEY")
+    ?: localProps.getProperty("GOOGLE_MAPS_API_KEY") ?: "")
+val PLACES_API_KEY = (localProps.getProperty("PLACES_API_KEY")
+    ?: localProps.getProperty("GOOGLE_PLACES_API_KEY")
+    ?: MAPS_API_KEY) // fallback
+
+
+
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -23,6 +40,9 @@ android {
 
         // 1) Manifest placeholder (for Maps/Places)
         manifestPlaceholders["PLACES_API_KEY"] = placesKey
+        manifestPlaceholders += mapOf("googleMapsApiKey" to MAPS_API_KEY)
+        resValue("string", "google_maps_key", MAPS_API_KEY)
+        resValue("string", "places_api_key", PLACES_API_KEY)
     }
 
     buildTypes {
@@ -55,7 +75,11 @@ dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.appcompat)
-
+    implementation ("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation ("com.squareup.retrofit2:converter-moshi:2.11.0")
+    implementation ("com.squareup.moshi:moshi-kotlin:1.15.1")
+    implementation ("com.google.android.libraries.places:places:3.5.0") // optional; we’ll use Web svc mainly
+    implementation ("com.google.android.gms:play-services-maps:18.2.0")
     implementation(platform(libs.androidx.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.ui)

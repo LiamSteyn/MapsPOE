@@ -15,42 +15,31 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import com.varsity.mapspoe.data.DataRepository
+import com.varsity.mapspoe.data.local.dao.entity.AppDatabase
+import com.varsity.mapspoe.data.remote.GooglePlacesReviewsProvider
 import com.varsity.mapspoe.ui.theme.MapsPOETheme
-
 
 class MainActivity : ComponentActivity() {
 
-    companion object {
-        private const val TAG = "MainActivity" // const in companion = OK to be uppercase
-    }
+    companion object { private const val TAG = "MainActivity" }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Initialize local DB + fake reviews + your in-memory lists
+        // Initialize local DB + services
         DataRepository.init(applicationContext)
 
-        // Enable Google Places reviews (real API)
-        DataRepository.enableGooglePlaces(
-            context = applicationContext,
-            apiKey = "AIzaSyChyPeEE2YQH0Thm4vBqr_aShmNlOXjUPg",
-            enable = true
+        val provider = GooglePlacesReviewsProvider.create(
+            apiKey = getString(R.string.places_api_key),
+            db = AppDatabase.get(applicationContext)
         )
+        DataRepository.enableGooglePlaces(provider, enable = true)
 
-
-        // (Optional) Enable Firebase mirroring/cache
-        DataRepository.enableFirebase(enable = true)
 
         setContent {
             MapsPOETheme {
-                Surface(
-                    modifier = Modifier.fillMaxSize(),
-                    color = Color.Black
-                ) {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        modifier = Modifier.fillMaxSize()
-                    ) {
+                Surface(modifier = Modifier.fillMaxSize(), color = Color.Black) {
+                    Box(contentAlignment = Alignment.Center, modifier = Modifier.fillMaxSize()) {
                         Text(text = "Welcome to Marley Maps", color = Color.White)
                     }
                 }

@@ -1,3 +1,4 @@
+// app/src/test/java/com/varsity/mapspoe/data/DataRepositoryTest.kt
 package com.varsity.mapspoe.data
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
@@ -9,8 +10,8 @@ import com.varsity.mapspoe.data.local.dao.entity.ReviewEntity
 import com.varsity.mapspoe.data.local.dao.entity.StoreEntity
 import com.varsity.mapspoe.data.remote.InMemoryReviewService
 import com.varsity.mapspoe.data.remote.ReviewService
-import com.varsity.mapspoe.domain.toDomain
-import com.varsity.mapspoe.domain.toEntity
+import com.varsity.mapspoe.domain.Review
+import com.varsity.mapspoe.domain.Store
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
 import org.junit.After
@@ -32,19 +33,20 @@ class DataRepositoryTest {
             AppDatabase::class.java
         ).allowMainThreadQueries().build()
 
-        // Minimal seed (store + one review)
+        // Minimal seed (store + one review) — use StoreEntity field names
         val store = StoreEntity(
             id = "st_1",
             name = "Green Leaf Dispensary",
-            lat = -33.9249,
-            lon = 18.4241,
+            latitude = -33.9249,
+            longitude = 18.4241,
             address = "123 Long St, Cape Town",
             phone = "+27 21 000 0001",
-            openHours = "09:00-20:00",
-            ratingAvg = 4.5,
+            hours = "09:00-20:00",
+            rating = 4.5,
             ratingCount = 128,
             googlePlaceId = null
         )
+
         val review = ReviewEntity(
             id = "rv_1", storeId = "st_1", author = "Zanele",
             rating = 5, comment = "Friendly staff", createdAt = 100L
@@ -106,19 +108,19 @@ private class TestHarness(
     private val db: AppDatabase,
     private val service: ReviewService
 ) {
-    suspend fun getStore(storeId: String): DataResult<com.varsity.mapspoe.domain.Store> {
+    suspend fun getStore(storeId: String): DataResult<Store> {
         val row = db.storeDao().getById(storeId)
         return when (row) {
             null -> DataResult.Empty("Store not found")
-            else -> DataResult.Success(row.toDomain())
+            else -> DataResult.Success(row.asDomain()) // local mapper (no extensions)
         }
     }
 
     suspend fun refreshReviews(storeId: String): DataResult<Unit> =
         runCatching {
-            val remote = service.getReviewsForStore(storeId)
+            val remote: List<Review> = service.getReviewsForStore(storeId)
             if (remote.isNotEmpty()) {
-                db.reviewDao().upsertAll(remote.map { it.toEntity() })
+                db.reviewDao().upsertAll(remote.map { it.asEntity() }) // local mapper
             }
             DataResult.Success(Unit)
         }.recover { t ->
@@ -131,3 +133,29 @@ private class TestHarness(
             onFailure = { t -> DataResult.Error("UNEXPECTED", t.message ?: "Unexpected error", t) }
         )
 }
+
+/* ---------- Local mappers (test-only) to avoid extension ambiguity ---------- */
+
+// Your domain Store uses lat/lon/openHours/ratingAvg (non-null); entity uses latitude/longitude/hours/rating (nullable).
+private fun StoreEntity.asDomain() = Store(
+    id = id,
+    name = name,
+    lat = latitude ?: 0.0,
+    lon = longitude ?: 0.0,
+    address = address.orEmpty(),
+    phone = phone,
+    openHours = hours,
+    ratingAvg = rating ?: 0.0,
+    ratingCount = ratingCount ?: 0,
+    googlePlaceId = googlePlaceId
+)
+
+// Convert domain Review -> Room ReviewEntity (1:1)
+private fun Review.asEntity() = ReviewEntity(
+    id = id,
+    storeId = storeId,
+    author = author,
+    rating = rating,
+    comment = comment,
+    createdAt = createdAt
+)
