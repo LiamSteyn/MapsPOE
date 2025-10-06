@@ -7,7 +7,7 @@ import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
 import com.varsity.mapspoe.data.DataRepository
-import com.varsity.mapspoe.data.User
+import com.varsity.mapspoe.data.legacy.User
 
 class RegisterActivity : Activity() {
 

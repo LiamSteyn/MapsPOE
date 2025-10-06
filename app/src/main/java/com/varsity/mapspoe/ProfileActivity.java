@@ -6,9 +6,9 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
-
+import com.varsity.mapspoe.data.legacy.User;
 import com.varsity.mapspoe.data.DataRepository;
-import com.varsity.mapspoe.data.User;
+
 
 import java.util.List;
 

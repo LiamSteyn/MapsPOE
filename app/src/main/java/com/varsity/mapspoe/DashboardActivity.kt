@@ -1,55 +1,75 @@
 package com.varsity.mapspoe
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ListView
+import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import com.varsity.mapspoe.data.DataRepository
+import kotlinx.coroutines.launch
 
-class DashboardActivity : Activity() {
+class DashboardActivity : AppCompatActivity() {
 
-    // Called when the activity is first created
+    // parallel lists so we can navigate by ID
+    private val rowTexts = mutableListOf<String>()
+    private val rowIds = mutableListOf<String>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        // Set the layout of this activity to activity_dashboard.xml
         setContentView(R.layout.activity_dashboard)
 
-        // Get the logged-in user email from intent
+        // Profile button (unchanged)
         val profileButton = findViewById<Button>(R.id.profileButton)
-        val userEmail = intent.getStringExtra("userEmail") ?: "" // fallback to empty string
-
+        val userEmail = intent.getStringExtra("userEmail") ?: ""
         profileButton.setOnClickListener {
             val intent = Intent(this, ProfileActivity::class.java)
             intent.putExtra("userEmail", userEmail)
             startActivity(intent)
         }
 
-
-
-        // Find references to the ListView and Logout Button in the layout
-        val listView = findViewById<ListView>(R.id.dispensaryList) // ListView showing dispensaries
-
-        // Load dispensary data from DataRepository
-        val dispensaries = DataRepository.getDispensaries()
-
-        // Create an ArrayAdapter to display dispensaries in the ListView
+        // List + adapter
+        val listView = findViewById<ListView>(R.id.dispensaryList)
         val adapter = ArrayAdapter(
             this,
-            android.R.layout.simple_list_item_1, // Default Android list item layout
-            dispensaries.map { "${it.name} (${it.distance}) ⭐${it.rating}" } // Display name, distance, and rating
+            android.R.layout.simple_list_item_1,
+            rowTexts
         )
-        listView.adapter = adapter // Attach adapter to the ListView
+        listView.adapter = adapter
 
-        // Handle item clicks on the ListView
+        // Collect Room-backed stores from DataRepository
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                DataRepository.observeStores().collect { stores ->
+                    rowTexts.clear()
+                    rowIds.clear()
+
+                    if (stores.isEmpty()) {
+                        rowTexts += "No dispensaries yet. (Seed may still be loading)"
+                    } else {
+                        for (s in stores) {
+                            val stars = "⭐" + String.format("%.1f", s.ratingAvg)
+                            rowTexts += "${s.name}  $stars"
+                            rowIds += s.id
+                        }
+                    }
+                    adapter.notifyDataSetChanged()
+                }
+            }
+        }
+
+        // Navigate to details using the parallel ID list
         listView.setOnItemClickListener { _, _, position, _ ->
-            // When a dispensary is clicked, open DispensaryDetailsActivity
-            val intent = Intent(this, DispensaryDetailsActivity::class.java)
-            // Pass the selected dispensary's ID to the details activity
-            intent.putExtra("dispensaryId", dispensaries[position].id)
-            startActivity(intent)
+            // Guard against the empty-state row
+            if (position in rowIds.indices) {
+                val storeId = rowIds[position]
+                val intent = Intent(this, DispensaryDetailsActivity::class.java)
+                intent.putExtra("dispensaryId", storeId)
+                startActivity(intent)
+            }
         }
     }
 }
