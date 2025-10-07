@@ -25,17 +25,20 @@ class LoginActivity : Activity() {
 
         // Set up click listener for login button
         loginButton.setOnClickListener {
-            // Attempt login using email and password from the input fields
-            val success = DataRepository.login(email.text.toString(), password.text.toString())
+            val inputEmail = email.text.toString()
+            val inputPassword = password.text.toString()
+
+            // Attempt login
+            val success = DataRepository.login(inputEmail, inputPassword)
 
             if (success) {
-                val intent = Intent(this, DashboardActivity::class.java)
-                intent.putExtra("userEmail", email.text.toString())
-                // Login successful → navigate to DashboardActivity
-                startActivity(Intent(this, DashboardActivity::class.java))
-                finish() // Close LoginActivity so user cannot go back to it
+                // Navigate to DashboardActivity with user email
+                val intent = Intent(this, DashboardActivity::class.java).apply {
+                    putExtra("userEmail", inputEmail)
+                }
+                startActivity(intent)
+                finish()
             } else {
-                // Login failed → show a simple toast message
                 Toast.makeText(this, "Invalid credentials", Toast.LENGTH_SHORT).show()
             }
         }

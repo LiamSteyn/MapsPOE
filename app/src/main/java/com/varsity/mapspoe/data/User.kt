@@ -1,8 +1,12 @@
 package com.varsity.mapspoe.data
 
-// Data class representing a user of the app
+import kotlinx.serialization.Serializable
+
+@Serializable
 data class User(
-    val name: String,     // Full name of the user
-    val email: String,    // Email address used for login and identification
-    val password: String  // User's password (stored in plain text here for simplicity; consider hashing in real apps)
+    val id: Long? = null,       // matches BIGINT and identity in Postgres
+    val name: String,           // NOT NULL
+    val age: Int?,
+    val email: String? = null,  // nullable
+    val password: String? = null // nullable
 )

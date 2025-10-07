@@ -1,19 +1,22 @@
 package com.varsity.mapspoe.data
 
-// Singleton object that stores app data in-memory
+import io.github.jan.supabase.exceptions.HttpRequestException
+import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.runBlocking
+
+// Singleton object for handling app data and Supabase interaction
 object DataRepository {
 
-    // List to hold registered users
-    private val users = mutableListOf<User>()
-
-    // List to hold dispensary data
+    // Local list of dispensaries (still in-memory)
     private val dispensaries = mutableListOf<Dispensary>()
 
-    // Initialization block to pre-populate some dispensary data
+    // In-memory cache of users (optional, used to sync or for local operations)
+    private val users = mutableListOf<User>()
+
+    // Initialize sample dispensary data
     init {
         dispensaries.addAll(
             listOf(
-                // Each Dispensary has an ID, name, address, distance, rating, and open/closed status
                 Dispensary(1, "Green Leaf Dispensary", "123 Main St, Cape Town", "1.2 km", 4.6, true),
                 Dispensary(2, "Herbal House", "45 Long Street, Cape Town", "2.3 km", 4.2, false),
                 Dispensary(3, "Mary Jane Market", "78 Bree St, Cape Town", "3.1 km", 4.9, true)
@@ -22,33 +25,96 @@ object DataRepository {
     }
 
     /**
-     * Registers a new user.
-     * @param user The user to register.
-     * @return true if registration is successful, false if a user with the same email already exists.
+     * Registers a new user by inserting into Supabase "users" table.
+     * Also caches the user locally for quick lookup.
+     * Returns true if registration is successful, false if user already exists or failed.
      */
-    fun registerUser(user: User): Boolean {
-        // Check if user already exists based on email
-        if (users.any { it.email == user.email }) return false
-        // Add new user to the list
-        users.add(user)
-        return true
+    @JvmStatic
+    fun registerUser(user: User): Boolean = runBlocking {
+        try {
+            val client = SupabaseClient.client
+
+            // Check if a user with the same email already exists
+            val existingUsers = client.from("users")
+                .select {
+                    filter {
+                        eq("email", user.email ?: "")
+                    }
+                }
+                .decodeList<User>()  // this is a suspend function, will await automatically in runBlocking
+
+            if (existingUsers.isNotEmpty()) {
+                // User already exists
+                return@runBlocking false
+            }
+
+            // Insert new user record into the Supabase table
+            client.from("users").insert(
+                mapOf(
+                    "name" to (user.name ?: ""),
+                    "email" to (user.email ?: ""),
+                    "password" to (user.password ?: "")
+
+                )
+
+
+            ).decodeList<User>() // await the result here
+
+            // Add to local cache
+            users.add(user)
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
     }
 
-    /**
-     * Checks if the provided email and password match a registered user.
-     * @param email The email entered by the user.
-     * @param password The password entered by the user.
-     * @return true if credentials are valid, false otherwise.
-     */
-    fun login(email: String, password: String): Boolean {
-        return users.any { it.email == email && it.password == password }
-    }
 
     /**
-     * Returns the list of dispensaries.
-     * @return List of Dispensary objects.
+     * Logs in a user by checking if email and password match in Supabase.
+     * Returns true if credentials are valid, false otherwise.
      */
+    @JvmStatic
+    fun login(email: String, password: String): Boolean = runBlocking {
+        try {
+            val client = SupabaseClient.client
+
+            // Query Supabase "users" table for matching credentials
+            val foundUsers = client.from("users")
+                .select {
+                    filter {
+                        eq("email", email)
+                        eq("password", password)
+                    }
+                }
+                .decodeList<User>() // suspend function, auto-await in runBlocking
+
+            if (foundUsers.isNotEmpty()) {
+                // Cache user locally if not already cached
+                val loggedUser = foundUsers.first()
+                if (!users.any { it.email == loggedUser.email }) {
+                    users.add(loggedUser)
+                }
+                true
+            } else {
+                false
+            }
+        } catch (e: HttpRequestException) {
+            e.printStackTrace()
+            false
+        }
+    }
+
+
+    /**
+     * Returns all dispensaries currently stored in memory.
+     */
+    @JvmStatic
     fun getDispensaries(): List<Dispensary> = dispensaries
 
+    /**
+     * Returns a list of users cached in memory (for Java interop).
+     */
+    @JvmStatic
     fun getUsers(): List<User> = users
 }
