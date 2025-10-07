@@ -7,5 +7,6 @@ data class Dispensary(
     val address: String,  // Physical address of the dispensary
     val distance: String, // Distance from the user (e.g., "1.2 km")
     val rating: Double,   // Average rating of the dispensary (e.g., 4.5)
-    val isOpen: Boolean   // Whether the dispensary is currently open (true = open, false = closed)
+    val isOpen: Boolean,   // Whether the dispensary is currently open (true = open, false = closed)
+    val googlePlaceId: String? = null
 )

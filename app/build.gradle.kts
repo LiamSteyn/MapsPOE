@@ -61,9 +61,14 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.8.1")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
     implementation(platform("io.github.jan-tennert.supabase:bom:2.4.0"))
     implementation("io.github.jan-tennert.supabase:gotrue-kt") // Auth
     implementation("io.github.jan-tennert.supabase:postgrest-kt") // Database
     implementation("io.ktor:ktor-client-okhttp:2.3.3")
+    implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+    implementation("com.github.bumptech.glide:glide:4.16.0")
+    implementation("com.google.android.material:material:1.12.0")
 }

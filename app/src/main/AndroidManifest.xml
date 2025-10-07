@@ -12,14 +12,13 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar"
+        android:theme="@style/Theme.MapsPOE"
         tools:targetApi="31">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
-            android:label="@string/app_name"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
+            android:label="@string/app_name">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
@@ -29,35 +28,30 @@
         <activity
             android:name=".LoginActivity"
             android:exported="true"
-            android:label="Login"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+            android:label="Login" />
 
         <!-- Register Activity -->
         <activity
             android:name=".RegisterActivity"
             android:exported="true"
-            android:label="Register"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+            android:label="Register" />
 
         <!-- Dashboard Activity -->
         <activity
             android:name=".DashboardActivity"
             android:exported="true"
-            android:label="Dashboard"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+            android:label="Dashboard" />
 
         <!-- Dispensary Details Activity -->
         <activity
             android:name=".DispensaryDetailsActivity"
             android:exported="true"
-            android:label="Dispensary Details"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+            android:label="Dispensary Details" />
 
         <activity
             android:name=".ProfileActivity"
             android:exported="true"
-            android:label="Profile Settings"
-            android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar" />
+            android:label="Profile Settings"/>
 
     </application>
 

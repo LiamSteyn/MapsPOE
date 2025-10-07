@@ -17,9 +17,33 @@ object DataRepository {
     init {
         dispensaries.addAll(
             listOf(
-                Dispensary(1, "Green Leaf Dispensary", "123 Main St, Cape Town", "1.2 km", 4.6, true),
-                Dispensary(2, "Herbal House", "45 Long Street, Cape Town", "2.3 km", 4.2, false),
-                Dispensary(3, "Mary Jane Market", "78 Bree St, Cape Town", "3.1 km", 4.9, true)
+                Dispensary(
+                    1,
+                    "The 420 Doctor - Rondebosch",
+                    "Rondebosch Court, Fountain Square, Rondebosch, Cape Town, 7701, South Africa",
+                    "1.2 km",
+                    4.6,
+                    true,
+                    googlePlaceId = "places/ChIJdy6oxx5dzB0RiWyZzXOX_mg"
+                ),
+                Dispensary(
+                    2,
+                    "The 420 Doctor - 24/7 Medical Cannabis Store",
+                    "14 Marine Rd, Sea Point, Cape Town, 8005, South Africa",
+                    "2.3 km",
+                    4.2,
+                    false,
+                    googlePlaceId = "places/ChIJLQvECFxnzB0R2q4F6iCgsyk"
+                ),
+                Dispensary(
+                    3,
+                    "Cannabis Life",
+                    "111 Ottery Rd, Wynberg, Cape Town, 7800, South Africa",
+                    "3.1 km",
+                    4.9,
+                    true,
+                    googlePlaceId = "places/ChIJD5HmgdpDzB0RIzdRt-2HQK0"
+                )
             )
         )
     }

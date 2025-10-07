@@ -1,3 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">MapsPOE</string>
+
+    <!-- Details screen strings -->
+    <string name="get_directions">Get Directions</string>
+    <string name="call_dispensary">Call Dispensary</string>
+    <string name="rating_fmt">⭐ %1$.1f</string>
+    <string name="loading_latest_review">Loading latest review…</string>
+    <string name="latest_review_fmt">Latest review: %1$s – %2$s</string>
+    <string name="open_now">Open Now</string>
+    <string name="closed">Closed</string>
 </resources>
