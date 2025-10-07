@@ -63,7 +63,7 @@ https://youtu.be/OPLa8pqZdq4
 
 🤖 AI Assistance Statement
 
-This project was independently coded and designed by Reuven-Jon Kadalie.
+This project was independently coded and designed by Reuven-Jon Kadalie, Ethan Smith, Ethan Buck, Liam Coetze.
 ChatGPT was used only for assistance with:
 	•	refining XML styling and UI layouts,
 	•	debugging certain Kotlin functions, and
