@@ -4,6 +4,7 @@
 The app provides location details, reviews, and contact actions such as **call** or **get directions** — all within a clean, mobile-friendly UI.
 
 ---
+Github link: https://github.com/LiamSteyn/MapsPOE.git
 
 ## 🧠 Features
 
